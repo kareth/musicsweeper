@@ -1,0 +1,27 @@
+#!/bin/bash
+
+count=0;
+
+repair_files(){
+  for file in $1/*
+  do
+    if [ -d "$file" ]
+    then
+      repair_files "$file"
+    else
+      count=$(( $count + 1 ))
+      hashcode=`./codegen.Darwin "$file" 10 30`
+      json=`curl -F "api_key=DMEE6FFUDMWAMAVZH" -F "query=$hashcode" "http://developer.echonest.com/api/v4/song/identify"`
+      any_songs=`grep 'songs": \[{' < "$json"`
+      if [ ! -e "$any_songs"]; then
+        title=`sed 's/.*songs": \[.*title": "\([^"]*\)", .*artist_name": "\([^"]*\).*/\1/' < "$json"`
+        artist=`sed 's/.*songs": \[.*title": "\([^"]*\)", .*artist_name": "\([^"]*\).*/\2/' < "$json"`
+        echo "$title - $artist"
+      else
+        echo "Any song matching for file: $file"
+      fi
+    fi
+  done
+}
+
+repair_files "$1"
