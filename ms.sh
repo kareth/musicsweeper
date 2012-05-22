@@ -8,7 +8,5 @@ if [ -x "$BINDIR/ms-$1.sh" ]; then
 else
   echo "ms: wrong command."
   echo "ms: use 'ms help' to see help."
- # exit 1
+  exit 1
 fi
-
-echo `pwd`

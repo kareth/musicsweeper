@@ -2,22 +2,23 @@
 
 # TODO do not allow to use semicolons
 
-dir=$1
+DIR=`pwd`
 
-LIBDIR="$1/data/library"
+create_playlists_folder(){
+  if [ ! -d "$DIR/playlists" ]; then
+    mkdir "$DIR/playlists"
+    echo -e "\033[38;5;148mPlaylists folder crated!\033[39m"
+  fi
+}
+create_playlists_folder
+
+LIBDIR="$DIR/data/library"
 matches=`cat "$LIBDIR"`
-filename="untitled_playlist.m3u"
+
+time_now=$(date +"_%m_%d_%Y_%H_%M_%S")
+filename="playlist$time_now.m3u"
 fail="0"
 
-if [ -d "$dir/playlists" ]; then
-  echo "SKIP - playlists folder"
-else
-  echo "CREATE - playlists folder"
-  mkdir "$dir/playlists"
-fi
-
-
-shift
 while [ $# -ne 0 ]; do
   if [ "$1" == "-S" ]; then
     shift
@@ -27,24 +28,34 @@ while [ $# -ne 0 ]; do
     matches=`grep "Score: [0-$1];" <<< "$matches"`
   elif [ "$1" == "-t" ]; then
     shift
-    matches=`grep "Tags:.*$1.*;" <<< "$matches"`
+    matches=`grep "Tags:.* $1 .*;" <<< "$matches"`
   elif [ "$1" == "-m" ]; then
     shift
     filename="$1.m3u"
   else
-    echo "Invalid option: $1"
+    echo -e "\033[38;5;197mError - invalid opiton: $1\033[39m"
     fail="1"
   fi
   shift
 done
 
-if [ "$fail" == "0" ]; then
-
-  echo "$matches"
-  file_list=`sed "s/.*Path: \([^;]*\);.*/..\/\1/" <<< "$matches"`
-  BINDIR=`dirname "$dir"`
-  echo "$BINDIR"
-  echo "$file_list"
-  echo -e "#EXTM3U\n$file_list" > "$BINDIR/$dir/playlists/$filename"
+if [ "$fail" == "1" ]; then
+  echo -e "\n\033[38;5;197mErrors prohibited to create playlist\033[39m"
+  exit 1
 fi
 
+if [ ! -n "$matches" ]; then
+  echo -e "\033[38;5;197mNo songs found matching given criteria\033[39m"
+else
+  file_list=`sed "s/.*Path: \([^;]*\);.*/\1/" <<< "$matches"`
+  song_presenter=`sed 's/.*Title: \([^;]*\); Artist: \([^;]*\);.*/\2 - \1/' <<< "$matches"`
+  songs_counter=`wc -l <<< "$matches"`
+  songs_counter=$(($songs_counter))
+  echo -e "\033[38;5;148mPlaylist created!\033[39m"
+  echo "$songs_counter Songs:"
+  echo "$song_presenter"
+
+  echo -e "#EXTM3U\n$file_list" > "$DIR/playlists/$filename"
+
+  echo -e "\033[38;5;148mPlaylist saved as: /playlists/$filename \033[39m"
+fi
