@@ -7,7 +7,6 @@ if [ "$1" == "-d" ]; then
   shift
   newdir="$basedir/$1"
   DIR="$newdir"
-  echo "$DIR"
   shift
 fi
 
