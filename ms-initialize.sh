@@ -1,6 +1,14 @@
 #!/bin/bash
 
-DIR=`pwd`
+basedir=`pwd`
+if [ "$1" == "-d" ]; then
+  shift
+  newdir="$basedir/$1"
+  DIR="$newdir"
+  echo "$DIR"
+  shift
+fi
+
 LIBDIR="$DIR/data/library"
 
 create_data_folder(){

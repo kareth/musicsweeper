@@ -2,7 +2,15 @@
 
 # TODO do not allow to use semicolons
 
-DIR=`pwd`
+basedir=`pwd`
+if [ "$1" == "-d" ]; then
+  shift
+  newdir="$basedir/$1"
+  DIR="$newdir"
+  echo "$DIR"
+  shift
+fi
+
 id="$1"
 tag="$2"
 LIBDIR="$DIR/data/library"
@@ -10,7 +18,7 @@ LIBDIR="$DIR/data/library"
 piece=`grep "ID: $id;" < "$LIBDIR"`
 
 if [ ! -n "$piece" ]; then
-  echo "No music with that id."
+  echo -e "\033[38;5;197mNo music with that id.\033[39m - $file_name"
   echo "Run ms --help or try finding song by ms find <song_name>"
 else
   old_tags=`sed 's/.*; Tags: \([^;]*\);.*/\1/' <<< "$piece"`
@@ -24,6 +32,7 @@ else
     echo -e "Tags:\033[38;5;136m$old_tags\033[39m \033[38;5;148m$tag\033[39m"
   else
     # Already tagged
-    echo "This tag is already applied to this song. All tags for this song: $tags"
+    echo -e "\033[38;5;197mThis tag is already applied to this song.\033[39m"
+    echo -e "All tags for this song: \033[38;5;136m$old_tags\033[39m"
   fi
 fi

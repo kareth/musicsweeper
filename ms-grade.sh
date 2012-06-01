@@ -2,7 +2,15 @@
 
 # TODO add possibility bu grading by: "ms grade Jackson 5"
 
-DIR=`pwd`
+basedir=`pwd`
+if [ "$1" == "-d" ]; then
+  shift
+  newdir="$basedir/$1"
+  DIR="$newdir"
+  echo "$DIR"
+  shift
+fi
+
 id="$1"
 score="$2"
 LIBDIR="$DIR/data/library"

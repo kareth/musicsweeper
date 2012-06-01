@@ -2,7 +2,14 @@
 
 # TODO do not allow to use semicolons
 
-DIR=`pwd`
+basedir=`pwd`
+if [ "$1" == "-d" ]; then
+  shift
+  newdir="$basedir/$1"
+  DIR="$newdir"
+  echo "$DIR"
+  shift
+fi
 
 create_playlists_folder(){
   if [ ! -d "$DIR/playlists" ]; then
@@ -28,7 +35,10 @@ while [ $# -ne 0 ]; do
     matches=`grep "Score: [0-$1];" <<< "$matches"`
   elif [ "$1" == "-t" ]; then
     shift
-    matches=`grep "Tags:.* $1 .*;" <<< "$matches"`
+    matches=`grep -i "Tags:.* $1 .*;" <<< "$matches"`
+  elif [ "$1" == "-a" ]; then
+    shift
+    matches=`grep -i "$1" <<< "$matches"`
   elif [ "$1" == "-m" ]; then
     shift
     filename="$1.m3u"

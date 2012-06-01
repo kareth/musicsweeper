@@ -1,7 +1,16 @@
 #!/bin/bash
 
 count=0;
-DIR=`pwd`
+
+basedir=`pwd`
+if [ "$1" == "-d" ]; then
+  shift
+  newdir="$basedir/$1"
+  DIR="$newdir"
+  echo "$DIR"
+  shift
+fi
+
 BINDIR=`dirname $0`
 
 repair_files(){
@@ -14,6 +23,8 @@ repair_files(){
       count=$(( $count + 1 ))
       hashcode=`"$BINDIR"/codegen.Darwin "$file" 10 30`
       response=`curl -s -F "api_key=DMEE6FFUDMWAMAVZH" -F "query=$hashcode" "http://developer.echonest.com/api/v4/song/identify"`
+      #echo "$response"
+      # TODO look for error instead for songs hash
       any=`grep 'songs": \[{' <<< "$response"`
       if [ ! -n "$any" ]; then
         file_name=`basename "$file"`
@@ -28,7 +39,7 @@ repair_files(){
         id3v2 --TIT2 "$title" "$file"
         id3v2 --TPE1 "$artist" "$file"
 
-        echo -e "\033[38;5;148mSuccess!\033[39m - $title - $artist"
+        echo -e "\033[38;5;148mSuccess!\033[39m - $artist - $title"
         mv "$file" "$FILEDIR/$artist - $title.mp3"
       fi
     fi
